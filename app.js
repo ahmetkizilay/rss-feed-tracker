@@ -3,6 +3,9 @@ var url = require('url');
 var http = require('http');
 var htmlparser = require('htmlparser');
 var async = require('async');
+var Buffer = require('buffer').Buffer;
+var Win1254 = require('./encoders/win1254');
+
 var jsonQuery = require('json-query');
 var mongoose = require('mongoose');
 var Feed = require('./models/Feed.js')(mongoose);
@@ -43,7 +46,7 @@ var parseKeywords = function(domJson) {
         rootContext: queryInput, filters: filter
     }).value;
 
-    console.log(queryResult);
+    console.log(Win1254.toUTF8(queryResult));
 };
 
 var feedDownloader = function(options, callbackComplete) {
@@ -80,6 +83,7 @@ var feedDownloader = function(options, callbackComplete) {
     var req = http.request(options, function (res) {
         res.setEncoding('utf8');
         rssParser.reset();
+
         res.on('data', function (chunk) {
             rssParser.parseChunk(chunk);
         });
@@ -111,18 +115,22 @@ var urlDownloader = function (options, callbackComplete) {
 
     var req = http.request(options, function (res) {
         res.setEncoding('binary');
-        urlParser.reset();
-        
+        //var output = '';
         res.on('data', function (chunk) {
+            //output += chunk;
             urlParser.parseChunk(chunk);
         });
 
         res.on('end', function () {
             urlParser.done();
+            //var buffer = Buffer.concat(data);
+
+            //console.log(output);
         });
     });
 
     req.on('error', function (err) {
+        console.log('error occurred');
         throw err;
     })
 
