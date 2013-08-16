@@ -68,7 +68,7 @@ var FeedDownloader = function () {
 
             if(dom.items) {
                 async.eachSeries(dom.items, function (item, urlDownloadComplete) {
-                    // download file
+
                     console.log('downloading: ' + item.link);
                     _urlDownloader(url.parse(item.link), function (err, dom) {
                         if(err) {
@@ -76,21 +76,30 @@ var FeedDownloader = function () {
                         }
 
                         var keywords = _parseKeywords(dom);
+                        if(keywords.length === 0) {
+                            console.log('no keywords');
+                        }
                         
                         Feed.insertFeed('radikal', item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
                             if(err) {
                                 urlDownloadComplete(err);
                             }
-
-                            urlDownloadComplete(null);
+                            else {
+                                urlDownloadComplete(null);
+                            }
                         });
                     });
                 }, function (err) {
                     if(err) {
+                        if(err.msg && err.msg === 'Feed Exists') {
+                            callback(null, 'feed already inserted');
+                            return;
+                        }
+
                         throw err;
                     }
 
-                    callbackComplete();
+                    callback(null, 'inserted all feeds');
                 });
             }
         });
