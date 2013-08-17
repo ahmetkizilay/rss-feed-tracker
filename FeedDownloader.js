@@ -4,6 +4,7 @@ var FeedDownloader = function () {
     var url = require('url');
     var htmlparser = require('htmlparser');
     var async = require('async');
+    var fs = require('fs');
     var http = require('http');
     var Buffer = require('buffer').Buffer;
     var Win1254 = require('./encoders/win1254');
@@ -59,7 +60,7 @@ var FeedDownloader = function () {
     */
     var _download = function (options, callback) {
         var groupId = options.id;
-        var urlOptions = url.parse(options.url);
+        var urlOptions = url.parse(options.link);
 
         var rssHandler = new htmlparser.RssHandler(function (err, dom) {
             if(err) {
@@ -69,37 +70,49 @@ var FeedDownloader = function () {
             if(dom.items) {
                 async.eachSeries(dom.items, function (item, urlDownloadComplete) {
 
-                    console.log('downloading: ' + item.link);
-                    _urlDownloader(url.parse(item.link), function (err, dom) {
+                    // checking if link with the same feed id exists
+                    // if not, downloads the link and parses the keyword
+                    // also when a duplicate document is found, it is assumed that rest of the items in the feed are also already added.
+                    // and continues to the other feed 
+                    Feed.doesFeedExist(groupId, item.link, function (err, exists) {
                         if(err) {
                             throw err;
                         }
 
-                        var keywords = _parseKeywords(dom);
-                        if(keywords.length === 0) {
-                            console.log('no keywords');
+                        if(exists) {
+                            urlDownloadComplete({msg: 'Feed Exists'});
                         }
-                        
-                        Feed.insertFeed('radikal', item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
-                            if(err) {
-                                urlDownloadComplete(err);
-                            }
-                            else {
-                                urlDownloadComplete(null);
-                            }
-                        });
+                        else {
+                            console.log('downloading: ' + item.link);
+                            _urlDownloader(url.parse(item.link), function (err, dom) {
+                                if(err) {
+                                    throw err;
+                                }
+
+                                var keywords = _parseKeywords(dom);
+                                if(keywords.length === 0) {
+                                    console.log('no keywords');
+                                }
+                                
+                                Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
+                                    if(err) {
+                                        urlDownloadComplete(err);
+                                    }
+                                    else {
+                                        urlDownloadComplete(null);
+                                    }
+                                });
+                            });
+                        }
                     });
+
                 }, function (err) {
                     if(err) {
-                        if(err.msg && err.msg === 'Feed Exists') {
-                            callback(null, 'feed already inserted');
-                            return;
-                        }
-
-                        throw err;
+                        callback(err);
+                        return;
                     }
 
-                    callback(null, 'inserted all feeds');
+                    callback(null);
                 });
             }
         });
@@ -107,28 +120,64 @@ var FeedDownloader = function () {
         var rssParser = new htmlparser.Parser(rssHandler);
 
         var req = http.request(urlOptions, function (res) {
-        res.setEncoding('utf8');
-        rssParser.reset();
+            res.setEncoding('utf8');
+            rssParser.reset();
 
-        res.on('data', function (chunk) {
-            rssParser.parseChunk(chunk);
+            res.on('data', function (chunk) {
+                rssParser.parseChunk(chunk);
+            });
+
+            res.on('end', function () {
+                rssParser.done();
+            });
         });
 
-        res.on('end', function () {
-            rssParser.done();
+        req.on('error', function (err) {
+            throw err;
         });
-    });
 
-    req.on('error', function (err) {
-        throw err;
-    });
-
-    req.end();
+        req.end();
 
     };
 
+    var _downloadAllFeeds = function (feedsPath, callback) {
+        fs.readFile(feedsPath, {encoding: 'utf-8'}, function (err, data) {
+            if(err) throw err;
+
+            var jsonFeeds = JSON.parse(data);
+            var doneWithoutError = true;
+
+            async.eachSeries(jsonFeeds, function (feed, done) {
+                // here individual feed is downloaded
+                _download(feed, function (err, msg) {
+                    if(err) {
+                        if(err.msg && err.msg === 'Feed Exists') {
+                            console.log('this already added');
+                            done();
+                        }
+                        else {
+                            done(err);
+                        }
+                    }
+                    else {
+                        done();
+                    }
+                });
+
+            }, function (err) {
+                if(err) {
+                    throw err;
+                }
+                else {
+                    callback(null, 'all feeds inserted');
+                }
+            });
+        });
+    };
+
     return {
-        download: _download
+        download: _download,
+        downloadAllFeeds: _downloadAllFeeds
     };
 }();
 

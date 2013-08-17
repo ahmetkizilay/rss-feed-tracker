@@ -1,30 +1,65 @@
 module.exports = function (mongoose) {
+    "use strict";
+    
     var FeedSchema = new mongoose.Schema({
-        group: {type: String, index: true},
         title: {type: String},
-        link: {type: String, index: true},
+        link: {type: String, index: true, unique: true},
         description: {type: String},
         pubDate: {type: Date},
+        groups: [String],
         tags: [String]
     });
 
-    FeedSchema.index({group: 1, link: 1}, {unique: true});
-
     var Feed = mongoose.model('Feed', FeedSchema);
 
-    var _insertFeed = function (group, title, link, description, pubDate, tags, callback) {
-        Feed.findOne({group: group, link: link}, function (err, feed) {
+    var _doesFeedExist = function(group, link, callback) {
+        Feed.findOne({link: link}, function (err, feed) {
             if(err) {
                 callback(err);
                 return;
             }
 
             if(feed) {
-                callback({msg: 'Feed Exists'});
+                if(feed.groups.indexOf(group) <  0) {
+                    callback(null, false);
+                }
+                else {
+                    callback(null, true);
+                }
             }
             else {
+                callback(null, false);
+            }
+        });
+    };
+
+    var _insertFeed = function (group, title, link, description, pubDate, tags, callback) {
+        Feed.findOne({link: link}, function (err, feed) {
+            if(err) {
+                callback(err);
+                return;
+            }
+
+            if(feed) {
+                if(feed.groups.indexOf(group) > -1) { // link exists, and feed already inserted
+                    callback({msg: 'Feed Exists'});
+                }
+                else { // link exists but in another feed
+                    feed.groups.push(group);
+                    feed.save(function (err) {
+                        if(err) {
+                            callback(err);
+                            return;
+                        }
+
+                        callback(null, 'Added Feed');
+                    });
+                }
+
+            }
+            else { // link does not exist yet
                 feed = new Feed({
-                    group: group,
+                    groups: [group],
                     title: title,
                     link: link,
                     description: description,
@@ -45,6 +80,7 @@ module.exports = function (mongoose) {
     };
 
     return {
+        doesFeedExist: _doesFeedExist,
         insertFeed: _insertFeed,
         Feed: Feed
     };

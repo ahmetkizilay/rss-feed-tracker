@@ -1,23 +1,30 @@
 var cronJob = require('cron').CronJob;
-var async = require('async');
 var FeedDownloader = require('./FeedDownloader');
-
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/rssfeedtracker');
 
 var cronTime = "*/5 * * * * *";
-var testUrl = "http://www.radikal.com.tr/d/rss/Rss_77.xml";
+var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
 
-var job = new cronJob({
-    cronTime: cronTime,
-    onTick: function() {
-        console.log("cron activated");
+var mainMethod = function () {
+    console.log('mainMethod started');
+    FeedDownloader.downloadAllFeeds('data/feeds.json', function (msg) {
+        console.log(msg);
+    });
+};
 
-        FeedDownloader.download({id: 'Radikal', url: testUrl}, function (err, msg) {
-            console.log(msg);
-        });
-    },
-    start: true,
-});
+mongoose.connect('mongodb://localhost/rssfeedtracker');
 
-job.start();
+if(!runAsJob) {
+    mainMethod();
+}
+else {
+    var job = new cronJob({
+        cronTime: cronTime,
+        onTick: function() {
+            mainMethod();
+        },
+        start: true,
+    });
+
+    job.start();
+}
