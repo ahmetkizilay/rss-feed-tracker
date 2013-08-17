@@ -6,9 +6,10 @@ var cronTime = "*/5 * * * * *";
 var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
 
 var mainMethod = function () {
-    console.log('mainMethod started');
-    FeedDownloader.downloadAllFeeds('data/feeds.json', function (msg) {
+    // console.log('mainMethod started');
+    FeedDownloader.downloadAllFeeds('data/feeds.json', function (err, msg) {
         console.log(msg);
+        if(!runAsJob) process.exit();
     });
 };
 

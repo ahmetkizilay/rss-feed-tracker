@@ -1,6 +1,6 @@
 module.exports = function (mongoose) {
     "use strict";
-    
+
     var FeedSchema = new mongoose.Schema({
         title: {type: String},
         link: {type: String, index: true, unique: true},
@@ -11,8 +11,14 @@ module.exports = function (mongoose) {
     });
 
     var Feed = mongoose.model('Feed', FeedSchema);
+    
+    var FeedStatuses =  {
+        LinkAndGroupAlreadyExists: 1,
+        PushedGroupIntoLink: 2,
+        LinkDoesNotExist: 3
+    };
 
-    var _doesFeedExist = function(group, link, callback) {
+    var _appendGroupIfLinkExists = function(group, link, callback) {
         Feed.findOne({link: link}, function (err, feed) {
             if(err) {
                 callback(err);
@@ -21,30 +27,7 @@ module.exports = function (mongoose) {
 
             if(feed) {
                 if(feed.groups.indexOf(group) <  0) {
-                    callback(null, false);
-                }
-                else {
-                    callback(null, true);
-                }
-            }
-            else {
-                callback(null, false);
-            }
-        });
-    };
-
-    var _insertFeed = function (group, title, link, description, pubDate, tags, callback) {
-        Feed.findOne({link: link}, function (err, feed) {
-            if(err) {
-                callback(err);
-                return;
-            }
-
-            if(feed) {
-                if(feed.groups.indexOf(group) > -1) { // link exists, and feed already inserted
-                    callback({msg: 'Feed Exists'});
-                }
-                else { // link exists but in another feed
+                    // record exists, just push the new group
                     feed.groups.push(group);
                     feed.save(function (err) {
                         if(err) {
@@ -52,36 +35,47 @@ module.exports = function (mongoose) {
                             return;
                         }
 
-                        callback(null, 'Added Feed');
+                        callback(null, FeedStatuses.PushedGroupIntoLink);
                     });
                 }
-
+                else {
+                    // record already contains the group
+                    callback(null, FeedStatuses.LinkAndGroupAlreadyExists);
+                }
             }
-            else { // link does not exist yet
-                feed = new Feed({
-                    groups: [group],
-                    title: title,
-                    link: link,
-                    description: description,
-                    pubDate: pubDate,
-                    tags: tags
-                });
-
-                feed.save(function (err) {
-                    if(err) {
-                        callback(err);
-                        return;
-                    }
-
-                    callback(null, 'Added Feed');
-                });
+            else {
+                // record does not esit
+                callback(null, FeedStatuses.LinkDoesNotExist);
             }
         });
     };
 
+    // duplicate checks are supposed to be done earlier
+    // so if you fail at validation you probably deserved it
+    var _insertFeed = function (group, title, link, description, pubDate, tags, callback) {
+        var feed = new Feed({
+            groups: [group],
+            title: title,
+            link: link,
+            description: description,
+            pubDate: pubDate,
+            tags: tags
+        });
+
+        feed.save(function (err) {
+            if(err) {
+                callback(err);
+                return;
+            }
+
+            callback(null, 'Added Feed');
+        });
+    };
+
     return {
-        doesFeedExist: _doesFeedExist,
+        doesFeedExist: _appendGroupIfLinkExists,
         insertFeed: _insertFeed,
-        Feed: Feed
+        Feed: Feed,
+        Status: FeedStatuses
     };
 };

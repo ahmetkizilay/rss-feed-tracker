@@ -28,7 +28,7 @@ var FeedDownloader = function () {
                 downloadComplete(err);
             }
 
-            console.log('finished downloading: ' + options.path);
+            // console.log('finished downloading: ' + options.path);
             downloadComplete(null, dom);
         });
 
@@ -74,35 +74,42 @@ var FeedDownloader = function () {
                     // if not, downloads the link and parses the keyword
                     // also when a duplicate document is found, it is assumed that rest of the items in the feed are also already added.
                     // and continues to the other feed 
-                    Feed.doesFeedExist(groupId, item.link, function (err, exists) {
+                    Feed.doesFeedExist(groupId, item.link, function (err, status) {
                         if(err) {
                             throw err;
                         }
 
-                        if(exists) {
-                            urlDownloadComplete({msg: 'Feed Exists'});
-                        }
-                        else {
-                            console.log('downloading: ' + item.link);
-                            _urlDownloader(url.parse(item.link), function (err, dom) {
-                                if(err) {
-                                    throw err;
-                                }
-
-                                var keywords = _parseKeywords(dom);
-                                if(keywords.length === 0) {
-                                    console.log('no keywords');
-                                }
-                                
-                                Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
+                        switch(status) {
+                            case Feed.Status.LinkAndGroupAlreadyExists: // exit the series loop
+                                // console.log('link and group already added');
+                                urlDownloadComplete({msg: 'Feed Exists'});
+                            break;
+                            case Feed.Status.PushedGroupIntoLink: // continue to the next item
+                                // console.log('group pushed into the link');
+                                urlDownloadComplete();
+                            break;
+                            case Feed.Status.LinkDoesNotExist: // download the link
+                                console.log('downloading: ' + item.link);
+                                _urlDownloader(url.parse(item.link), function (err, dom) {
                                     if(err) {
-                                        urlDownloadComplete(err);
+                                        throw err;
                                     }
-                                    else {
-                                        urlDownloadComplete(null);
+
+                                    var keywords = _parseKeywords(dom);
+                                    if(keywords.length === 0) {
+                                        console.log('no keywords');
                                     }
+                                    
+                                    Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
+                                        if(err) {
+                                            urlDownloadComplete(err);
+                                        }
+                                        else {
+                                            urlDownloadComplete(null);
+                                        }
+                                    });
                                 });
-                            });
+                            break;
                         }
                     });
 
@@ -152,7 +159,7 @@ var FeedDownloader = function () {
                 _download(feed, function (err, msg) {
                     if(err) {
                         if(err.msg && err.msg === 'Feed Exists') {
-                            console.log('this already added');
+                            // console.log('this already added');
                             done();
                         }
                         else {
@@ -169,7 +176,7 @@ var FeedDownloader = function () {
                     throw err;
                 }
                 else {
-                    callback(null, 'all feeds inserted');
+                    callback(null, 'process completed without error');
                 }
             });
         });
