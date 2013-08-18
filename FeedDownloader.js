@@ -12,10 +12,10 @@ var FeedDownloader = function () {
     
     var Feed = APP.models.Feed;
 
-    var _parseKeywords = function(domJson) {
+    var _parseKeywords = function(domJson, query) {
 
         var keywords = [];
-        select(domJson, "div.index_keywords a h2").forEach(function (item) {
+        select(domJson, query).forEach(function (item) {
             keywords.push(Win1254.toUTF8(item.children[0].raw));
         });
 
@@ -60,6 +60,7 @@ var FeedDownloader = function () {
     var _download = function (options, callback) {
         var groupId = options.id;
         var urlOptions = url.parse(options.link);
+        var keywordsQuery = options.tag_path;
 
         var rssHandler = new htmlparser.RssHandler(function (err, dom) {
             if(err) {
@@ -94,7 +95,7 @@ var FeedDownloader = function () {
                                         throw err;
                                     }
 
-                                    var keywords = _parseKeywords(dom);
+                                    var keywords = _parseKeywords(dom, keywordsQuery);
                                     if(keywords.length === 0) {
                                         console.log('no keywords');
                                     }

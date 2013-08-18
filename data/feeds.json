@@ -1,70 +1,70 @@
 [{
     "id": "Radikal-Türkiye",
     "link": "http://www.radikal.com.tr/d/rss/Rss_77.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Politika",
     "link": "http://www.radikal.com.tr/d/rss/Rss_78.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Yaşam",
     "link": "http://www.radikal.com.tr/d/rss/Rss_79.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Ekonomi",
     "link": "http://www.radikal.com.tr/d/rss/Rss_80.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Dünya",
     "link": "http://www.radikal.com.tr/d/rss/Rss_81.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-KültürSanat",
     "link": "http://www.radikal.com.tr/d/rss/Rss_82.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-TartışıYorum",
     "link": "http://www.radikal.com.tr/d/rss/Rss_83.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Spor",
     "link": "http://www.radikal.com.tr/d/rss/Rss_84.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Çevre",
     "link": "http://www.radikal.com.tr/d/rss/Rss_85.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Eğitim",
     "link": "http://www.radikal.com.tr/d/rss/Rss_86.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Sağlık",
     "link": "http://www.radikal.com.tr/d/rss/Rss_118.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Sinema",
     "link": "http://www.radikal.com.tr/d/rss/Rss_120.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Eğlence",
     "link": "http://www.radikal.com.tr/d/rss/Rss_138.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 },
 {
     "id": "Radikal-Yemek",
     "link": "http://www.radikal.com.tr/d/rss/Rss_139.xml",
-    "tag-path": ""
+    "tag_path": "div.index_keywords a h2"
 }]
