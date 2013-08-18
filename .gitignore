@@ -1,2 +1,3 @@
 /node_modules
 gist-token
+/config/development.js
