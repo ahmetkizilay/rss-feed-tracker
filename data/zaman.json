@@ -1,0 +1,70 @@
+[{
+    "id": "Zaman-KültürSanat",
+    "link": "http://www.zaman.com.tr/kultursanat.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Müzik",
+    "link": "http://www.zaman.com.tr/muzik.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Ab",
+    "link": "http://www.zaman.com.tr/ab.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Röportaj",
+    "link": "http://www.zaman.com.tr/roportaj.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-OrtaDogu",
+    "link": "http://www.zaman.com.tr/ortadogu.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Avrupa",
+    "link": "http://www.zaman.com.tr/avrupa.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Amerika",
+    "link": "http://www.zaman.com.tr/amerika.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Yemek",
+    "link": "http://www.zaman.com.tr/yemek.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Finans",
+    "link": "http://www.zaman.com.tr/finans.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Spor",
+    "link": "http://www.zaman.com.tr/spor.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Ekonomi",
+    "link": "http://www.zaman.com.tr/ekonomi.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Teknoloji",
+    "link": "http://www.zaman.com.tr/teknoloji.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Politika",
+    "link": "http://www.zaman.com.tr/politika.rss",
+    "tag_path": "div.detayUyari a"
+},
+{
+    "id": "Zaman-Dünya",
+    "link": "http://www.zaman.com.tr/dunya.rss",
+    "tag_path": "div.detayUyari a"
+}]
