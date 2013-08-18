@@ -9,8 +9,8 @@ var FeedDownloader = function () {
     var Buffer = require('buffer').Buffer;
     var Win1254 = require('./encoders/win1254');
     var select = require('soupselect').select;
-    var mongoose = require('mongoose');
-    var Feed = require('./models/Feed.js')(mongoose);
+    
+    var Feed = APP.models.Feed;
 
     var _parseKeywords = function(domJson) {
 
@@ -28,7 +28,6 @@ var FeedDownloader = function () {
                 downloadComplete(err);
             }
 
-            // console.log('finished downloading: ' + options.path);
             downloadComplete(null, dom);
         });
 
@@ -69,7 +68,7 @@ var FeedDownloader = function () {
 
             if(dom.items) {
                 async.eachSeries(dom.items, function (item, urlDownloadComplete) {
-
+                    console.log(item.link);
                     // checking if link with the same feed id exists
                     // if not, downloads the link and parses the keyword
                     // also when a duplicate document is found, it is assumed that rest of the items in the feed are also already added.

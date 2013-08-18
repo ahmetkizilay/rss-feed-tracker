@@ -1,6 +1,5 @@
 module.exports = function (mongoose) {
-    "use strict";
-
+    "use strict";    
     var FeedSchema = new mongoose.Schema({
         title: {type: String},
         link: {type: String, index: true, unique: true},
@@ -72,7 +71,26 @@ module.exports = function (mongoose) {
         });
     };
 
+    var _retrieveFeeds = function(group, date, callback) {
+        Feed.find({pubDate: {$lt: date}, groups: group}).limit(13).lean().exec(function (err, results) {
+            if(err) {
+                callback(err);
+            }
+            else {
+                callback(null, results.map(function(result) {
+                    // removing uncessary items in results
+                    delete result.groups;
+                    delete result.__v;
+                    delete result._id;
+
+                    return result;
+                }));
+            }
+        });
+    }
+
     return {
+        retrieveFeeds: _retrieveFeeds,
         doesFeedExist: _appendGroupIfLinkExists,
         insertFeed: _insertFeed,
         Feed: Feed,
