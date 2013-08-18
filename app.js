@@ -17,7 +17,7 @@ var mainMethod = function () {
 
     async.series([
         function (done) {
-           FeedDownloader.downloadAllFeeds('data/feeds.json', function (err, msg) {
+           FeedDownloader.downloadAllFeeds('data/radikal.json', function (err, msg) {
                console.log(msg);
                done(null);
            });
@@ -25,7 +25,7 @@ var mainMethod = function () {
 
         function (done) {
             console.log('starting gist');
-            GistCreator.handleGist('data/feeds.json', function (err, msg) {
+            GistCreator.handleGist('data/radikal.json', function (err, msg) {
                 if(err) {
                     console.log(err);
                 }
