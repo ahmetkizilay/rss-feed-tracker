@@ -7,16 +7,15 @@ var FeedDownloader = function () {
     var fs = require('fs');
     var http = require('http');
     var Buffer = require('buffer').Buffer;
-    var Win1254 = require('./encoders/win1254');
+    var ISO9 = require('./encoders/iso9');
     var select = require('soupselect').select;
     
     var Feed = APP.models.Feed;
 
     var _parseKeywords = function(domJson, query) {
-
         var keywords = [];
         select(domJson, query).forEach(function (item) {
-            keywords.push(Win1254.toUTF8(item.children[0].raw));
+            keywords.push(item.children[0].raw);
         });
 
         return keywords;
@@ -34,8 +33,22 @@ var FeedDownloader = function () {
         var urlParser = new htmlparser.Parser(urlHandler);
 
         var req = http.request(options, function (res) {
-            res.setEncoding('binary');
+            var nonUTF = false;
+            if(res.headers["content-type"]) {
+                if(res.headers["content-type"].toLowerCase().indexOf('utf-8') > -1) {
+                    res.setEncoding('utf-8');
+                }
+                else {
+                    res.setEncoding('binary');
+                    nonUTF = true;
+                }
+            }
+
             res.on('data', function (chunk) {
+                if(nonUTF) {
+                    chunk = ISO9.toUTF8(chunk);
+                }
+
                 urlParser.parseChunk(chunk);
             });
 

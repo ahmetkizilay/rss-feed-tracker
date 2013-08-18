@@ -17,22 +17,23 @@ var mainMethod = function () {
 
     async.series([
         function (done) {
-           FeedDownloader.downloadAllFeeds('data/radikal.json', function (err, msg) {
+           FeedDownloader.downloadAllFeeds('data/zaman.json', function (err, msg) {
                console.log(msg);
                done(null);
            });
-        },
-
-        function (done) {
-            console.log('starting gist');
-            GistCreator.handleGist('data/radikal.json', function (err, msg) {
-                if(err) {
-                    console.log(err);
-                }
-                console.log(msg);
-                done(null);
-            });
         }
+        // ,
+
+        // function (done) {
+        //     console.log('starting gist');
+        //     GistCreator.handleGist('data/zaman.json', function (err, msg) {
+        //         if(err) {
+        //             console.log(err);
+        //         }
+        //         console.log(msg);
+        //         done(null);
+        //     });
+        // }
 
     ], function (err) {
         if(!runAsJob) process.exit();
