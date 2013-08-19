@@ -3,6 +3,7 @@ APP = {};
 var cronJob = require('cron').CronJob;
 var mongoose = require('mongoose');
 var async = require('async');
+var fs = require('fs');
 
 APP.models = require('./models')(mongoose);
 
@@ -12,30 +13,45 @@ var GistCreator = require('./GistCreator');
 var cronTime = "*/5 * * * * *";
 var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
 
-var mainMethod = function () {
-    console.log('mainMethod started');
+var processSingleDataFile = function (dataJson, callback) {
+    console.log('process single');
 
     async.series([
         function (done) {
-           FeedDownloader.downloadAllFeeds('data/zaman.json', function (err, msg) {
+           FeedDownloader.downloadAllFeeds(dataJson, function (err, msg) {
                console.log(msg);
-               done(null);
+               done(err);
            });
-        }
-        // ,
+        },
 
-        // function (done) {
-        //     console.log('starting gist');
-        //     GistCreator.handleGist('data/zaman.json', function (err, msg) {
-        //         if(err) {
-        //             console.log(err);
-        //         }
-        //         console.log(msg);
-        //         done(null);
-        //     });
-        // }
-
+        function (done) {
+            console.log('starting gist');
+            GistCreator.handleGist(dataJson, function (err, msg) {
+                if(err) {
+                    console.log(err);
+                }
+                console.log(msg);
+                done(err);
+            });
+         }
     ], function (err) {
+        callback(err);
+    });
+};
+
+var mainMethod = function () {
+    console.log('mainMethod started');
+
+    var dataFiles = fs.readdirSync('data');
+    async.eachSeries(dataFiles, function (dataFile, done) {
+        
+        var data = fs.readFileSync('data/' + dataFile);
+        var dataJson = JSON.parse(data);
+
+        processSingleDataFile(dataJson, done);
+
+    }, function (err) {
+        if(err) throw err;
         if(!runAsJob) process.exit();
     });
 };

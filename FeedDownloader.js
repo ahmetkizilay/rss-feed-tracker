@@ -160,38 +160,33 @@ var FeedDownloader = function () {
 
     };
 
-    var _downloadAllFeeds = function (feedsPath, callback) {
-        fs.readFile(feedsPath, {encoding: 'utf-8'}, function (err, data) {
-            if(err) throw err;
-
-            var jsonFeeds = JSON.parse(data);
-            var doneWithoutError = true;
-
-            async.eachSeries(jsonFeeds, function (feed, done) {
-                // here individual feed is downloaded
-                _download(feed, function (err, msg) {
-                    if(err) {
-                        if(err.msg && err.msg === 'Feed Exists') {
-                            // console.log('this already added');
-                            done();
-                        }
-                        else {
-                            done(err);
-                        }
-                    }
-                    else {
+    var _downloadAllFeeds = function (jsonFeeds, callback) {
+        console.log('downloading tweets' + jsonFeeds.length);
+        async.eachSeries(jsonFeeds, function (feed, done) {
+            
+            // here individual feed is downloaded
+            _download(feed, function (err, msg) {
+                if(err) {
+                    if(err.msg && err.msg === 'Feed Exists') {
+                        // console.log('this already added');
                         done();
                     }
-                });
-
-            }, function (err) {
-                if(err) {
-                    throw err;
+                    else {
+                        done(err);
+                    }
                 }
                 else {
-                    callback(null, 'process completed without error');
+                    done();
                 }
             });
+
+        }, function (err) {
+            if(err) {
+                throw err;
+            }
+            else {
+                callback(null, 'process completed without error');
+            }
         });
     };
 

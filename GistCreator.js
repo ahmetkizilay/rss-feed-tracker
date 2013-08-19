@@ -71,12 +71,12 @@ var GistCreator = function () {
     };
 
     var _updateGist = function (gistId, results, date, callback) {
-        var newGistFileName = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '.json';        
+        var newGistFileName = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '.json';
         var newGistFileObj = {};
 
         newGistFileObj[newGistFileName] = {
             content: JSON.stringify(results)
-        }
+        };
 
         var gistCreatePostData = {
             'files': newGistFileObj
@@ -91,7 +91,7 @@ var GistCreator = function () {
             path: '/gists/' + gistId,
             method: 'PATCH',
             headers: {
-                'Authorization': 'token 12ff0280389afdda4a1fd39eb834596c62e04140',
+                'Authorization': 'token ' + cfg.github_token,
                 'Content-Length': Buffer.byteLength(gistCreatePostString),
                 'Content-Type': 'application/json; charset=UTF-8'
             }
@@ -153,44 +153,36 @@ var GistCreator = function () {
         });
     };
 
-    var _handleGist = function (feedsPath, callback) {
-        fs.readFile(feedsPath, {encoding: 'utf-8'}, function (err, data) {
-            if(err) {
-                throw err;
-            }
+    var _handleGist = function (jsonFeeds, callback) {
 
-            var jsonFeeds = JSON.parse(data);
+        async.eachSeries(jsonFeeds, function (feed, done) {
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-            async.eachSeries(jsonFeeds, function (feed, done) {
-                var today = new Date();
-                today.setHours(0, 0, 0, 0);
+            Feed.retrieveFeeds(feed.id, today, function (err, feeds) {
+                if(err) {
+                    console.log(err);
+                    done(err);
+                }
+                else {
+                    if(feeds && feeds.length > 0) {
+                        _sendToGist(feed.id, feeds, today, function (err, response) {
+                            if(err) {
+                                done(err);
+                                return;
+                            }
 
-                Feed.retrieveFeeds(feed.id, today, function (err, feeds) {
-                    if(err) {
-                        console.log(err);
-                        done(err);
+                            done();
+                        });
                     }
                     else {
-                        if(feeds && feeds.length > 0) {
-                            _sendToGist(feed.id, feeds, today, function (err, response) {
-                                if(err) {
-                                    done(err);
-                                    return;
-                                }
-
-                                done();
-                            });
-                        }
-                        else {
-                            done();
-                        }
+                        done();
                     }
-                });
-
-            }, function (err) {
-                callback(err, 'exiting method');
+                }
             });
 
+        }, function (err) {
+            callback(err, 'exiting method');
         });
     };
 
