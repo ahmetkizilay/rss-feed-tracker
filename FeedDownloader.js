@@ -7,7 +7,7 @@ var FeedDownloader = function () {
     var fs = require('fs');
     var http = require('http');
     var Buffer = require('buffer').Buffer;
-    var ISO9 = require('./encoders/iso9');
+    var encoder = require('./encoders');
     var select = require('soupselect').select;
     
     var Feed = APP.models.Feed;
@@ -33,20 +33,24 @@ var FeedDownloader = function () {
         var urlParser = new htmlparser.Parser(urlHandler);
 
         var req = http.request(options, function (res) {
-            var nonUTF = false;
+            res.setEncoding('utf-8');
+            var content_type = null;
+
             if(res.headers["content-type"]) {
-                if(res.headers["content-type"].toLowerCase().indexOf('utf-8') > -1) {
-                    res.setEncoding('utf-8');
-                }
-                else {
+
+                var encMatchResult = res.headers['content-type'].match(/charset=([^;]*)([;]+|$)/);
+                if(encMatchResult !== null && encMatchResult.length > 1 && encMatchResult[1].toLowerCase().indexOf('utf') < 0) {
+                    content_type = encMatchResult[1].toLowerCase();
                     res.setEncoding('binary');
-                    nonUTF = true;
                 }
+
             }
 
+            console.log(content_type);
+
             res.on('data', function (chunk) {
-                if(nonUTF) {
-                    chunk = ISO9.toUTF8(chunk);
+                if(content_type) {
+                    chunk = encoder(content_type).toUTF8(chunk);
                 }
 
                 urlParser.parseChunk(chunk);
@@ -112,7 +116,9 @@ var FeedDownloader = function () {
                                     if(keywords.length === 0) {
                                         console.log('no keywords');
                                     }
-                                    
+                                    else {
+                                        console.log(keywords);
+                                    }
                                     Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
                                         if(err) {
                                             urlDownloadComplete(err);
@@ -161,7 +167,7 @@ var FeedDownloader = function () {
     };
 
     var _downloadAllFeeds = function (jsonFeeds, callback) {
-        console.log('downloading tweets' + jsonFeeds.length);
+        // console.log('downloading items' + jsonFeeds.length);
         async.eachSeries(jsonFeeds, function (feed, done) {
             
             // here individual feed is downloaded
