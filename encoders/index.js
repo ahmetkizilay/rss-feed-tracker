@@ -1,4 +1,8 @@
+/*jslint node: true */
+
 var Encoder = function (encoding) {
+    'use strict';
+
     var lowerEncoding = encoding.toLowerCase();
     if(lowerEncoding === 'win-1254') {
         return require('./win1254');

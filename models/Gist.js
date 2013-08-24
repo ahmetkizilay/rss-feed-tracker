@@ -1,5 +1,6 @@
+ /*jslint node: true */
 module.exports = function (mongoose) {
-    "use strict";
+    'use strict';
 
     var GistSchema = new mongoose.Schema({
         id: {type: String, unique: true, index: true},
@@ -31,7 +32,7 @@ module.exports = function (mongoose) {
             } else {
                 callback(null, false);
             }
-        })
+        });
     };
 
     return {

@@ -1,5 +1,7 @@
-module.exports = function (mongoose) {
-    "use strict";    
+ /*jslint node: true */
+ module.exports = function (mongoose) {
+    'use strict';
+
     var FeedSchema = new mongoose.Schema({
         title: {type: String},
         link: {type: String, index: true, unique: true},
@@ -87,7 +89,7 @@ module.exports = function (mongoose) {
                 }));
             }
         });
-    }
+    };
 
     return {
         retrieveFeeds: _retrieveFeeds,

@@ -1,4 +1,8 @@
+/*jslint node: true */
+
 module.exports = function () {
+    'use strict';
+
     var Buffer = require('buffer').Buffer;
 
     var toUTF8 = function (input) {
@@ -441,7 +445,7 @@ module.exports = function () {
                     break;
                 case 236:
                     output[count++] = 0xc3;
-                    output[count++] = 0xAC
+                    output[count++] = 0xAC;
                     break;
                 case 237:
                     output[count++] = 0xc3;

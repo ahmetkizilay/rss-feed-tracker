@@ -1,4 +1,8 @@
+/*jslint node: true */
+
 module.exports = function () {
+    'use strict';
+
     var toUTF8 = function (input) {
         var buf = (Object.prototype.toString.call(input) === '[object String]' ? new Buffer(input, 'binary') : input);
         var len = buf.length, output = new Buffer(len * 2), i = 0, count = 0;
@@ -439,7 +443,7 @@ module.exports = function () {
                     break;
                 case 236:
                     output[count++] = 0xc3;
-                    output[count++] = 0xAC
+                    output[count++] = 0xAC;
                     break;
                 case 237:
                     output[count++] = 0xc3;

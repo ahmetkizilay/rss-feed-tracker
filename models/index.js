@@ -1,4 +1,7 @@
 var ModelWrapper = function (mongoose) {
+    /*jslint node: true */
+    'use strict';
+
     var fs = require('fs');
     var models = {};
 

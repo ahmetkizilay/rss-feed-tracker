@@ -1,6 +1,8 @@
 (function () {
-    
-    var cronJob = require('cron').CronJob;
+    /*jslint node: true */
+    'use strict';
+
+    var CronJob = require('cron').CronJob;
     var mongoose = require('mongoose');
     var async = require('async');
     var fs = require('fs');
@@ -10,7 +12,7 @@
     var FeedDownloader = require('./FeedDownloader')(models);
     var GistCreator = require('./GistCreator')(models);
 
-    var cronTime = "*/5 * * * * *";
+    var cronTime = '*/5 * * * * *';
     var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
 
     var processSingleDataFile = function (dataJson, callback) {
@@ -62,7 +64,7 @@
         mainMethod();
     }
     else {
-        var job = new cronJob({
+        var job = new CronJob({
             cronTime: cronTime,
             onTick: function() {
                 mainMethod();

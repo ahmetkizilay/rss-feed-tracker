@@ -1,4 +1,8 @@
+/*jslint node: true */
+
 module.exports = function () {
+    'use strict';
+
     var Buffer = require('buffer').Buffer;
 
     var toUTF8 = function (input) {
@@ -7,152 +11,152 @@ module.exports = function () {
 
         for(; i < len; ++i) {
             switch(buf[i]) {
-                case 128: 
+                case 128:
                     output[count++] = 0xE2;
                     output[count++] = 0x82;
                     output[count++] = 0xAC;
                     break;
-                case 129: 
+                case 129:
                     output[count++] = 0xc2;
                     output[count++] = 0x81;
                     break;
-                case 130: 
+                case 130:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x9A;
                     break;
-                case 131: 
+                case 131:
                     output[count++] = 0xc6;
                     output[count++] = 0x92;
                     break;
-                case 132: 
+                case 132:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x9E;
                     break;
-                case 133: 
+                case 133:
                     output[count++] = 0xe2;
                     output[count++] = 0x80;
                     output[count++] = 0xA6;
                     break;
-                case 134: 
+                case 134:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0xA0;
                     break;
-                case 135:  
+                case 135:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0xA1;
                     break;
-                case 136: 
+                case 136:
                     output[count++] = 0xCB;
                     output[count++] = 0x86;
                     break;
-                case 137: 
+                case 137:
                     output[count++] = 0x02;
                     output[count++] = 0x80;
                     output[count++] = 0xB0;
                     break;
-                case 138: 
+                case 138:
                     output[count++] = 0xC5;
                     output[count++] = 0xA0;
                     break;
-                case 139: 
+                case 139:
                     output[count++] = 0x02;
                     output[count++] = 0x80;
                     output[count++] = 0xB9;
                     break;
-                case 140: 
+                case 140:
                     output[count++] = 0xC5;
                     output[count++] = 0x92;
                     break;
-                case 141: 
+                case 141:
                     output[count++] = 0xc2;
                     output[count++] = 0x8D;
                     break;
-                case 142: 
+                case 142:
                     output[count++] = 0xc2;
                     output[count++] = 0x8E;
                     break;
-                case 143: 
+                case 143:
                     output[count++] = 0xc2;
                     output[count++] = 0x8F;
                     break;
-                case 144: 
+                case 144:
                     output[count++] = 0xc2;
                     output[count++] = 0x90;
                     break;
-                case 145: 
+                case 145:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x98;
                     break;
-                case 146: 
+                case 146:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x99;
                     break;
-                case 147: 
+                case 147:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x9C;
                     break;
-                case 148: 
+                case 148:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x9D;
                     break;
-                case 149: 
+                case 149:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0xA2;
                     break;
-                case 150: 
+                case 150:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x93;
                     break;
-                case 151: 
+                case 151:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0x94;
                     break;
-                case 152: 
+                case 152:
                     output[count++] = 0xCB;
                     output[count++] = 0x9C;
                     break;
-                case 153: 
+                case 153:
                     output[count++] = 0xE2;
                     output[count++] = 0x84;
                     output[count++] = 0xA2;
                     break;
-                case 154: 
+                case 154:
                     output[count++] = 0xC5;
                     output[count++] = 0xA1;
                     break;
-                case 155: 
+                case 155:
                     output[count++] = 0xE2;
                     output[count++] = 0x80;
                     output[count++] = 0xBA;
                     break;
-                case 156: 
+                case 156:
                     output[count++] = 0xC5;
                     output[count++] = 0x93;
                     break;
-                case 157: 
+                case 157:
                     output[count++] = 0xc2;
                     output[count++] = 0x9D;
                     break;
-                case 158: 
+                case 158:
                     output[count++] = 0xc2;
                     output[count++] = 0x9E;
                     break;
-                case 169: 
+                case 169:
                     output[count++] = 0xC5;
                     output[count++] = 0xB8;
                     break;
-                case 160: 
+                case 160:
                     output[count++] = 0xC2;
                     output[count++] = 0xA0;
                     break;
@@ -458,7 +462,7 @@ module.exports = function () {
                     break;
                 case 236:
                     output[count++] = 0xc3;
-                    output[count++] = 0xAC
+                    output[count++] = 0xAC;
                     break;
                 case 237:
                     output[count++] = 0xc3;

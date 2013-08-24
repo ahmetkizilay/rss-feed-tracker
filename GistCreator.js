@@ -1,13 +1,13 @@
 var GistCreator = function (models) {
-    "use strict";
+    /*jslint node: true */
+    'use strict';
 
-    var fs = require('fs');
     var async = require('async');
     var http = require('https');
     var Buffer = require('buffer').Buffer;
     var cfg = require('./config');
     
-    var Feed = models.Feed
+    var Feed = models.Feed;
     var Gist = models.Gist;
 
     var _writeStringIntoRequest = function (str, req) {
@@ -23,7 +23,7 @@ var GistCreator = function (models) {
         var newGistFileObj = {};
         newGistFileObj[gistName] = {
             content: 'this is a collection of RSS feeds for ' + gistName
-        }
+        };
 
         var gistCreatePostData = {
             'description': 'RSS Feeds For ' + gistName,
@@ -166,7 +166,7 @@ var GistCreator = function (models) {
                 }
                 else {
                     if(feeds && feeds.length > 0) {
-                        _sendToGist(feed.id, feeds, today, function (err, response) {
+                        _sendToGist(feed.id, feeds, today, function (err) {
                             if(err) {
                                 done(err);
                                 return;
