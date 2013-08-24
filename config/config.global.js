@@ -17,7 +17,7 @@ config.mongo.db = '';
 // config.mongo.pass = '';
 // config.mongo.port = 27017;
 
-config.mongo.connectionString = '';
+config.mongo.connection_string = '';
 
 config.github_token = '';
 

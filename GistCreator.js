@@ -1,4 +1,4 @@
-var GistCreator = function () {
+var GistCreator = function (models) {
     "use strict";
 
     var fs = require('fs');
@@ -7,8 +7,8 @@ var GistCreator = function () {
     var Buffer = require('buffer').Buffer;
     var cfg = require('./config');
     
-    var Feed = APP.models.Feed
-    var Gist = APP.models.Gist;
+    var Feed = models.Feed
+    var Gist = models.Gist;
 
     var _writeStringIntoRequest = function (str, req) {
         var chunkSize = 1024;
@@ -189,6 +189,6 @@ var GistCreator = function () {
     return {
         handleGist: _handleGist
     };
-}();
+};
 
 module.exports = GistCreator;

@@ -1,74 +1,75 @@
-APP = {};
+(function () {
+    
+    var cronJob = require('cron').CronJob;
+    var mongoose = require('mongoose');
+    var async = require('async');
+    var fs = require('fs');
+    var cfg = require('./config');
+    var models = require('./models')(mongoose);
 
-var cronJob = require('cron').CronJob;
-var mongoose = require('mongoose');
-var async = require('async');
-var fs = require('fs');
+    var FeedDownloader = require('./FeedDownloader')(models);
+    var GistCreator = require('./GistCreator')(models);
 
-APP.models = require('./models')(mongoose);
+    var cronTime = "*/5 * * * * *";
+    var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
 
-var FeedDownloader = require('./FeedDownloader');
-var GistCreator = require('./GistCreator');
+    var processSingleDataFile = function (dataJson, callback) {
+        console.log('process single');
 
-var cronTime = "*/5 * * * * *";
-var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
+        async.series([
+            function (done) {
+               FeedDownloader.downloadAllFeeds(dataJson, function (err, msg) {
+                   console.log(msg);
+                   done(err);
+               });
+            },
 
-var processSingleDataFile = function (dataJson, callback) {
-    console.log('process single');
+            function (done) {
+                console.log('starting gist');
+                GistCreator.handleGist(dataJson, function (err, msg) {
+                    if(err) {
+                        console.log(err);
+                    }
+                    console.log(msg);
+                    done(err);
+                });
+             }
+        ], function (err) {
+            callback(err);
+        });
+    };
 
-    async.series([
-        function (done) {
-           FeedDownloader.downloadAllFeeds(dataJson, function (err, msg) {
-               console.log(msg);
-               done(err);
-           });
-        },
+    var mainMethod = function () {
+        console.log('mainMethod started');
 
-        function (done) {
-            console.log('starting gist');
-            GistCreator.handleGist(dataJson, function (err, msg) {
-                if(err) {
-                    console.log(err);
-                }
-                console.log(msg);
-                done(err);
-            });
-         }
-    ], function (err) {
-        callback(err);
-    });
-};
+        var dataFiles = fs.readdirSync('data');
+        async.eachSeries(dataFiles, function (dataFile, done) {
+            
+            var data = fs.readFileSync('data/' + dataFile);
+            var dataJson = JSON.parse(data);
 
-var mainMethod = function () {
-    console.log('mainMethod started');
+            processSingleDataFile(dataJson, done);
 
-    var dataFiles = fs.readdirSync('data');
-    async.eachSeries(dataFiles, function (dataFile, done) {
-        
-        var data = fs.readFileSync('data/' + dataFile);
-        var dataJson = JSON.parse(data);
+        }, function (err) {
+            if(err) throw err;
+            if(!runAsJob) process.exit();
+        });
+    };
 
-        processSingleDataFile(dataJson, done);
+    mongoose.connect(cfg.mongo.connection_string);
 
-    }, function (err) {
-        if(err) throw err;
-        if(!runAsJob) process.exit();
-    });
-};
+    if(!runAsJob) {
+        mainMethod();
+    }
+    else {
+        var job = new cronJob({
+            cronTime: cronTime,
+            onTick: function() {
+                mainMethod();
+            },
+            start: true,
+        });
 
-mongoose.connect('mongodb://localhost/rssfeedtracker');
-
-if(!runAsJob) {
-    mainMethod();
-}
-else {
-    var job = new cronJob({
-        cronTime: cronTime,
-        onTick: function() {
-            mainMethod();
-        },
-        start: true,
-    });
-
-    job.start();
-}
+        job.start();
+    }
+}).call(this);

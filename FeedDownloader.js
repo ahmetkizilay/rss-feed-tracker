@@ -1,16 +1,15 @@
-var FeedDownloader = function () {
-    "use strict";
+var FeedDownloader = function (models) {
+    /*jslint node: true */
+    'use strict';
 
     var url = require('url');
     var htmlparser = require('htmlparser');
     var async = require('async');
-    var fs = require('fs');
     var http = require('http');
-    var Buffer = require('buffer').Buffer;
     var encoder = require('./encoders');
     var select = require('soupselect').select;
     
-    var Feed = APP.models.Feed;
+    var Feed = models.Feed;
 
     var _parseKeywords = function(domJson, query) {
         var keywords = [];
@@ -36,7 +35,7 @@ var FeedDownloader = function () {
             res.setEncoding('utf-8');
             var content_type = null;
 
-            if(res.headers["content-type"]) {
+            if(res.headers['content-type']) {
 
                 var encMatchResult = res.headers['content-type'].match(/charset=([^;]*)([;]+|$)/);
                 if(encMatchResult !== null && encMatchResult.length > 1 && encMatchResult[1].toLowerCase().indexOf('utf') < 0) {
@@ -119,7 +118,7 @@ var FeedDownloader = function () {
                                     else {
                                         console.log(keywords);
                                     }
-                                    Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err, msg) {
+                                    Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err) {
                                         if(err) {
                                             urlDownloadComplete(err);
                                         }
@@ -171,7 +170,7 @@ var FeedDownloader = function () {
         async.eachSeries(jsonFeeds, function (feed, done) {
             
             // here individual feed is downloaded
-            _download(feed, function (err, msg) {
+            _download(feed, function (err) {
                 if(err) {
                     if(err.msg && err.msg === 'Feed Exists') {
                         // console.log('this already added');
@@ -200,6 +199,6 @@ var FeedDownloader = function () {
         download: _download,
         downloadAllFeeds: _downloadAllFeeds
     };
-}();
+};
 
 module.exports = FeedDownloader;
