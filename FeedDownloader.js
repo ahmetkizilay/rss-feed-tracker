@@ -98,7 +98,7 @@ var FeedDownloader = function (models) {
                         switch(status) {
                             case Feed.Status.LinkAndGroupAlreadyExists: // exit the series loop
                                 // console.log('link and group already added');
-                                urlDownloadComplete({msg: 'Feed Exists'});
+                                urlDownloadComplete();
                             break;
                             case Feed.Status.PushedGroupIntoLink: // continue to the next item
                                 // console.log('group pushed into the link');
@@ -172,13 +172,7 @@ var FeedDownloader = function (models) {
             // here individual feed is downloaded
             _download(feed, function (err) {
                 if(err) {
-                    if(err.msg && err.msg === 'Feed Exists') {
-                        // console.log('this already added');
-                        done();
-                    }
-                    else {
-                        done(err);
-                    }
+                    done(err);
                 }
                 else {
                     done();
