@@ -97,7 +97,7 @@ var FeedDownloader = function (models) {
                                 urlDownloadComplete();
                                 return;
                             }
-                        };
+                        }
 
                         // checking if link with the same feed id exists
                         // if not, downloads the link and parses the keyword
