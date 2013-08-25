@@ -75,7 +75,7 @@ var GistCreator = function (models) {
         var newGistFileObj = {};
 
         newGistFileObj[newGistFileName] = {
-            content: JSON.stringify(results)
+            content: JSON.stringify(results, null, '\t')
         };
 
         var gistCreatePostData = {
@@ -171,6 +171,12 @@ var GistCreator = function (models) {
                                 done(err);
                                 return;
                             }
+
+                            // here I should be deleting Feeds
+                            // handled asynchronously
+                            Feed.deleteFeeds(feeds.map(function (feedItem) {
+                                return feedItem.link;
+                            }));
 
                             done();
                         });

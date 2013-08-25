@@ -91,11 +91,17 @@
         });
     };
 
+    // No callback, just let it remove all 
+    var _deleteFeeds = function(linkArray) {
+        Feed.find({link: {$in: linkArray}}).remove();
+    };
+
     return {
         retrieveFeeds: _retrieveFeeds,
         doesFeedExist: _appendGroupIfLinkExists,
         insertFeed: _insertFeed,
         Feed: Feed,
-        Status: FeedStatuses
+        Status: FeedStatuses,
+        deleteFeeds: _deleteFeeds
     };
 };
