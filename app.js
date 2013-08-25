@@ -12,11 +12,11 @@
     var FeedDownloader = require('./FeedDownloader')(models);
     var GistCreator = require('./GistCreator')(models);
 
-    var cronTime = '*/5 * * * * *';
+    var cronTime = '* * */3 * * *'; // three hours
     var runAsJob = process.argv[2] !== undefined && process.argv[2] === 'true';
 
     var processSingleDataFile = function (dataJson, callback) {
-        console.log('process single');
+        //console.log('process single');
 
         async.series([
             function (done) {
@@ -27,7 +27,7 @@
             },
 
             function (done) {
-                console.log('starting gist');
+                //console.log('starting gist');
                 GistCreator.handleGist(dataJson, function (err, msg) {
                     if(err) {
                         console.log(err);
@@ -42,7 +42,7 @@
     };
 
     var mainMethod = function () {
-        console.log('mainMethod started');
+        // console.log('mainMethod started');
 
         var dataFiles = fs.readdirSync('data');
         async.eachSeries(dataFiles, function (dataFile, done) {

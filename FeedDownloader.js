@@ -37,7 +37,7 @@ var FeedDownloader = function (models) {
             var content_type = null;
 
             if(res.headers['content-type']) {
-                console.log(res.headers['content-type']);
+                // console.log(res.headers['content-type']);
                 var encMatchResult = res.headers['content-type'].match(/charset=([^;]*)([;]+|$)/);
                 if(encMatchResult !== null && encMatchResult.length > 1 && encMatchResult[1].toLowerCase().indexOf('utf') < 0) {
                     content_type = encMatchResult[1].toLowerCase();
@@ -62,7 +62,7 @@ var FeedDownloader = function (models) {
         });
 
         req.on('error', function (err) {
-            console.log('error occurred');
+            // console.log('error occurred');
             throw err;
         });
 
@@ -91,7 +91,7 @@ var FeedDownloader = function (models) {
                     }
 
                     async.eachSeries(dom.items.reverse(), function (item, urlDownloadComplete) {
-                        console.log(item.link);
+                        // console.log(item.link);
                         if(pubDate !== null) {
                             if(item.pubDate.getTime() < pubDate.getTime()) {
                                 urlDownloadComplete();
@@ -118,7 +118,7 @@ var FeedDownloader = function (models) {
                                     urlDownloadComplete();
                                 break;
                                 case Feed.Status.LinkDoesNotExist: // download the link
-                                    console.log('downloading: ' + item.link);
+                                    // console.log('downloading: ' + item.link);
                                     _urlDownloader(url.parse(item.link), function (err, dom) {
                                         if(err) {
                                             throw err;
@@ -126,11 +126,12 @@ var FeedDownloader = function (models) {
 
                                         var keywords = _parseKeywords(dom, keywordsQuery);
                                         if(keywords.length === 0) {
-                                            console.log('no keywords');
+                                             // console.log('no keywords');
                                         }
                                         else {
-                                            console.log(keywords);
+                                            // console.log(keywords);
                                         }
+                                        
                                         Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err) {
                                             if(err) {
                                                 urlDownloadComplete(err);

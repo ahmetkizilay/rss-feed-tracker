@@ -61,12 +61,12 @@ var GistCreator = function (models) {
         });
 
         req.on('error', function (err) {
-            console.log(err);
+            // console.log(err);
             callback(err);
         });
 
         _writeStringIntoRequest(gistCreatePostString, req);
-        console.log('about to send');
+        // console.log('about to send');
         req.end();
     };
 
@@ -83,7 +83,6 @@ var GistCreator = function (models) {
         };
 
         var gistCreatePostString = JSON.stringify(gistCreatePostData);
-        console.log(gistCreatePostString.length);
 
         var gistCreatePostOptions = {
             host: 'api.github.com',
@@ -133,7 +132,7 @@ var GistCreator = function (models) {
                 return;
             }
 
-            console.log('does gist exist? ' + yes);
+            // console.log('does gist exist? ' + yes);
 
             if(yes) {
                 _updateGist(id, results, date, callback);
