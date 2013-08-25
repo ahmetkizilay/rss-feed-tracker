@@ -36,7 +36,7 @@ var FeedDownloader = function (models) {
             var content_type = null;
 
             if(res.headers['content-type']) {
-
+                console.log(res.headers['content-type']);
                 var encMatchResult = res.headers['content-type'].match(/charset=([^;]*)([;]+|$)/);
                 if(encMatchResult !== null && encMatchResult.length > 1 && encMatchResult[1].toLowerCase().indexOf('utf') < 0) {
                     content_type = encMatchResult[1].toLowerCase();
@@ -45,7 +45,7 @@ var FeedDownloader = function (models) {
 
             }
 
-            console.log(content_type);
+            //console.log(content_type);
 
             res.on('data', function (chunk) {
                 if(content_type) {
@@ -84,7 +84,7 @@ var FeedDownloader = function (models) {
             }
 
             if(dom.items) {
-                async.eachSeries(dom.items, function (item, urlDownloadComplete) {
+                async.eachSeries(dom.items.reverse(), function (item, urlDownloadComplete) {
                     console.log(item.link);
                     // checking if link with the same feed id exists
                     // if not, downloads the link and parses the keyword
