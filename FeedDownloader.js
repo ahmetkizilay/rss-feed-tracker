@@ -10,6 +10,7 @@ var FeedDownloader = function (models) {
     var select = require('soupselect').select;
     
     var Feed = models.Feed;
+    var LatestFeed = models.LatestFeed;
 
     var _parseKeywords = function(domJson, query) {
         var keywords = [];
@@ -84,60 +85,78 @@ var FeedDownloader = function (models) {
             }
 
             if(dom.items) {
-                async.eachSeries(dom.items.reverse(), function (item, urlDownloadComplete) {
-                    console.log(item.link);
-                    // checking if link with the same feed id exists
-                    // if not, downloads the link and parses the keyword
-                    // also when a duplicate document is found, it is assumed that rest of the items in the feed are also already added.
-                    // and continues to the other feed 
-                    Feed.doesFeedExist(groupId, item.link, function (err, status) {
-                        if(err) {
-                            throw err;
-                        }
-
-                        switch(status) {
-                            case Feed.Status.LinkAndGroupAlreadyExists: // exit the series loop
-                                // console.log('link and group already added');
-                                urlDownloadComplete();
-                            break;
-                            case Feed.Status.PushedGroupIntoLink: // continue to the next item
-                                // console.log('group pushed into the link');
-                                urlDownloadComplete();
-                            break;
-                            case Feed.Status.LinkDoesNotExist: // download the link
-                                console.log('downloading: ' + item.link);
-                                _urlDownloader(url.parse(item.link), function (err, dom) {
-                                    if(err) {
-                                        throw err;
-                                    }
-
-                                    var keywords = _parseKeywords(dom, keywordsQuery);
-                                    if(keywords.length === 0) {
-                                        console.log('no keywords');
-                                    }
-                                    else {
-                                        console.log(keywords);
-                                    }
-                                    Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err) {
-                                        if(err) {
-                                            urlDownloadComplete(err);
-                                        }
-                                        else {
-                                            urlDownloadComplete(null);
-                                        }
-                                    });
-                                });
-                            break;
-                        }
-                    });
-
-                }, function (err) {
+                LatestFeed.getLatestFeedForGroup(groupId, function (err, pubDate) {
                     if(err) {
-                        callback(err);
-                        return;
+                        throw err;
                     }
 
-                    callback(null);
+                    async.eachSeries(dom.items.reverse(), function (item, urlDownloadComplete) {
+                        console.log(item.link);
+                        if(pubDate !== null) {
+                            if(item.pubDate.getTime() < pubDate.getTime()) {
+                                urlDownloadComplete();
+                                return;
+                            }
+                        };
+
+                        // checking if link with the same feed id exists
+                        // if not, downloads the link and parses the keyword
+                        // also when a duplicate document is found, it is assumed that rest of the items in the feed are also already added.
+                        // and continues to the other feed 
+                        Feed.doesFeedExist(groupId, item.link, function (err, status) {
+                            if(err) {
+                                throw err;
+                            }
+
+                            switch(status) {
+                                case Feed.Status.LinkAndGroupAlreadyExists: // exit the series loop
+                                    // console.log('link and group already added');
+                                    urlDownloadComplete();
+                                break;
+                                case Feed.Status.PushedGroupIntoLink: // continue to the next item
+                                    // console.log('group pushed into the link');
+                                    urlDownloadComplete();
+                                break;
+                                case Feed.Status.LinkDoesNotExist: // download the link
+                                    console.log('downloading: ' + item.link);
+                                    _urlDownloader(url.parse(item.link), function (err, dom) {
+                                        if(err) {
+                                            throw err;
+                                        }
+
+                                        var keywords = _parseKeywords(dom, keywordsQuery);
+                                        if(keywords.length === 0) {
+                                            console.log('no keywords');
+                                        }
+                                        else {
+                                            console.log(keywords);
+                                        }
+                                        Feed.insertFeed(groupId, item.title, item.link, item.description, item.pubDate, keywords, function (err) {
+                                            if(err) {
+                                                urlDownloadComplete(err);
+                                                return;
+                                            }
+                                            else {
+                                                urlDownloadComplete();
+                                            }
+                                        });
+                                    });
+                                break;
+                            }
+
+                            // here the latest feed update will be taken care of aysncronously
+                            pubDate = item.pubDate;
+                            LatestFeed.setLatestFeedForGroup(groupId, pubDate);
+                        });
+
+                    }, function (err) {
+                        if(err) {
+                            callback(err);
+                            return;
+                        }
+
+                        callback(null);
+                    });
                 });
             }
         });
